@@ -1,4 +1,64 @@
+import jwt
 import frappe
+from datetime import datetime, timedelta
+
+# Secret key for signing JWT
+SECRET_KEY = 'my_secret_key_here'  
+
+def generate_jwt_token(user):
+    # the token expiration
+    expiration = datetime.utcnow() + timedelta(hours=1)
+    
+    # the payload of the JWT
+    payload = {
+        'user': user,
+        'exp': expiration
+    }
+    
+    # Generate JWT token
+    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    return token
+
+@frappe.whitelist(allow_guest=True)
+def get_jwt_token():
+    #  the user which will authenticate automatically
+    user = 'administrator'  
+    
+    #  JWT token for the user
+    token = generate_jwt_token(user)
+    
+    # Return the token as a JSON response
+    return {
+        'token': token
+    }
+@frappe.whitelist(allow_guest=True)
+def jwt_login(token):
+    try:
+        # Decode and verify the JWT token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        
+        # Get the user from the token payload
+        user = payload.get('user')
+        
+        if not user:
+            frappe.throw("Invalid token.")
+        
+        # Log in the user
+        frappe.set_user(user)
+        
+        # set the session to ensure it's applied for future requests
+        frappe.local.login_manager.user = user
+        frappe.local.login_manager.post_login()
+        
+        # Redirect to the ERPNext desk page
+        frappe.local.response["type"] = "redirect"
+        frappe.local.response["location"] = "/app"
+        
+    except jwt.ExpiredSignatureError:
+        frappe.throw("Token has expired.")
+    except jwt.InvalidTokenError:
+        frappe.throw("Invalid token.")
+
 
 @frappe.whitelist(allow_guest=True)
 def get_available_slots(date):
@@ -93,4 +153,5 @@ def send_demo_schedule_email(slot, date, email, message):
     except Exception as e:
         frappe.log.error(frappe.get_traceback(),'Demo Email Send Error')
         return 'failure'
+
 
