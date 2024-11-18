@@ -22,7 +22,7 @@ def generate_jwt_token(user):
 @frappe.whitelist(allow_guest=True)
 def get_jwt_token():
     #  the user which will authenticate automatically
-    user = 'administrator'  
+    user = 'nabeel.khan@zikpro.com'  
     
     #  JWT token for the user
     token = generate_jwt_token(user)
