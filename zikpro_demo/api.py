@@ -3,8 +3,7 @@ import frappe
 from datetime import datetime, timedelta
 
 # Secret key for signing JWT
-SECRET_KEY = 'my_secret_key_here'  
-
+SECRET_KEY = '43d4f2888b3a5d9'
 def generate_jwt_token(user):
     # the token expiration
     expiration = datetime.utcnow() + timedelta(hours=1)
@@ -22,7 +21,8 @@ def generate_jwt_token(user):
 @frappe.whitelist(allow_guest=True)
 def get_jwt_token():
     #  the user which will authenticate automatically
-    user = 'nabeel.khan@zikpro.com'  
+    user = 'nabeel.khan@zikpro.com'
+'  
     
     #  JWT token for the user
     token = generate_jwt_token(user)
