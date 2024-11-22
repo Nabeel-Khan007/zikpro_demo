@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 # Secret key for signing JWT
 SECRET_KEY = 'my_secret_key_here'  
 
-def generate_jwt_token(email:
+def generate_jwt_token(email):
     # the token expiration
     expiration = datetime.utcnow() + timedelta(hours=1)
     
