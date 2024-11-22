@@ -3,14 +3,15 @@ import frappe
 from datetime import datetime, timedelta
 
 # Secret key for signing JWT
-SECRET_KEY = '43d4f2888b3a5d9'
-def generate_jwt_token(user):
+SECRET_KEY = 'my_secret_key_here'  
+
+def generate_jwt_token(email:
     # the token expiration
     expiration = datetime.utcnow() + timedelta(hours=1)
     
     # the payload of the JWT
     payload = {
-        'user': user,
+        'email': email,
         'exp': expiration
     }
     
@@ -21,11 +22,10 @@ def generate_jwt_token(user):
 @frappe.whitelist(allow_guest=True)
 def get_jwt_token():
     #  the user which will authenticate automatically
-    user = 'nabeel.khan@zikpro.com'
-'  
+    email = 'nabeel.khan@zikpro.com'  
     
     #  JWT token for the user
-    token = generate_jwt_token(user)
+    token = generate_jwt_token(email)
     
     # Return the token as a JSON response
     return {
@@ -38,16 +38,16 @@ def jwt_login(token):
         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         
         # Get the user from the token payload
-        user = payload.get('user')
+        email = payload.get('email')
         
         if not user:
             frappe.throw("Invalid token.")
         
         # Log in the user
-        frappe.set_user(user)
+        frappe.set_email(email)
         
         # set the session to ensure it's applied for future requests
-        frappe.local.login_manager.user = user
+        frappe.local.login_manager.email = email
         frappe.local.login_manager.post_login()
         
         # Redirect to the ERPNext desk page
